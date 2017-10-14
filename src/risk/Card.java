@@ -3,21 +3,21 @@ package risk;
  *
  * @author jkleifges9087
  */
-enum CardType {Artillery, Cavalry, Infantry, Wild}
+
 public class Card {
-    int ID; //corresponds to the region name, 43 and 44 are wild
+    int ID; //corresponds to the region name, 42 and 43 are wild
     CardType type;
 
-    public card(int i){
+    public Card(int i){
       this.ID = i;
       if(i < 14){
-        this.type = Infantry;
+        this.type = CardType.Infantry;
       }else if(i < 28){
-        this.type = Cavalry;
+        this.type = CardType.Cavalry;
       }else if(i < 42){
-        this.type = Artillery;
+        this.type = CardType.Artillery;
       }else{
-        this.type = Wild;
+        this.type = CardType.Wild;
       }
     }
 }

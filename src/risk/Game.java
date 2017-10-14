@@ -24,7 +24,7 @@ public class Game {
         this.deck = makeDeck();
     }
     public void play(){
-
+      
     }
     private ArrayList<Card> makeDeck(){
       ArrayList temp = new ArrayList();
