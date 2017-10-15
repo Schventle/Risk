@@ -60,7 +60,7 @@ public class Game {
               }
               break;
           }
-          troopTransfer();
+          troopTransfer(p);
         }
       }
       reinforce();
@@ -73,6 +73,43 @@ public class Game {
       }
     }
     
+    private void troopTransfer(Player p){
+      System.out.println("You may now transfer troops between regions.\n"
+              + "select a region to move from, move to, "
+              + "and the amount of troops,\n"
+              + "or enter 0 for the amount to skip");
+      int fromRegion;
+      int toRegion;
+      int amount;
+      while(true){
+        fromRegion = enterInt(0,41);
+        toRegion = enterInt(0, 41);
+        amount = enterInt(0, map[fromRegion].garrison);
+      
+        if(map[fromRegion].owner == p && map[toRegion].owner == p && hasPath(fromRegion, toRegion, p)){
+          break;
+        }
+      }
+      map[fromRegion].garrison -= amount;
+      map[toRegion].garrison += amount;
+    }
+    private boolean hasPath(int from, int to, Player p){//breadth first path search
+      ArrayList<Integer> ownedTerritories = new ArrayList();
+      ownedTerritories.add(from);
+      for(Integer i: ownedTerritories){//for each owned territory in the list
+        if(i == to){//if it is the desired territory
+          return true;//there is a path
+        }
+        for(Integer k: map[i].borders){//if not, take the bordering territories
+          if(map[k].owner == p){//if you own that territory
+            if(ownedTerritories.contains(k))
+              ownedTerritories.add(k);//add it to the list
+          }
+        }
+        ownedTerritories.remove(i);
+      }
+      return false;
+    }
     private void attack(Player p){
       System.out.println("You are attacking;\n"
               + "enter 2 numbers, "
@@ -83,11 +120,27 @@ public class Game {
       
       if(validAttack(atk,def, p)){
         battle(atk,def);
+        System.out.println(map[atk]);
+        System.out.println(map[def]);
       }else{
         System.out.println("Invalid attack");
       }
-      System.out.println(map[atk]);
-      System.out.println(map[def]);
+      
+      
+      if(map[def].garrison <= 0){//if the defender loses
+        occupy(atk,def,p);       //the territory changes hands
+      }
+    }
+    private void occupy(int atk, int def, Player attaker){
+      System.out.println(map[def].name + " has changed hands.\n"
+              + "How many troops do you want to occupy with?\n"
+              + "Enter a number between 1 and " + (map[atk].garrison - 1));
+      int amount = enterInt(1, map[atk].garrison - 1);
+      
+      map[def].owner = attaker;
+      
+      map[atk].garrison -= amount;
+      map[def].garrison = amount;
     }
     private void intel(){
       System.out.println("Regional Intel:\n"
@@ -135,12 +188,12 @@ public class Game {
       if(map[atk]. garrison < 2){
         return false;
       }
-      if(!borders(atk,def)){
+      if(!bordering(atk,def)){
         return false;
       }
       return true;
     }
-    private boolean borders(int r1, int r2){
+    private boolean bordering(int r1, int r2){
       for(int i = 0; i < map[r1].borders.length; ++i){
         if(map[r1].borders[i] == r2)
           return true;
