@@ -3,6 +3,7 @@ package risk;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,10 +20,10 @@ public class Game {
     int numCardTroops = 6;
 
     public Game(){
-        this.numPlayers = getNumPlayers();
-        this.table = makeTable(this.numPlayers);
-        this.map = makeMap();
-        this.deck = makeDeck();
+      this.numPlayers = getNumPlayers();
+      this.table = makeTable(this.numPlayers);
+      this.map = makeMap();
+      this.deck = makeDeck();
     }
     
     public void setup(){
@@ -33,13 +34,21 @@ public class Game {
         }
         i++;
       }
+      for(Region r: map){
+        r.garrison = 1;
+      }
       for(Player p: table){
+        System.out.println(p);
         setupTroops(p);
       }
     }
     
     public void play(){
         for(Player p: table){
+          System.out.println(p);
+          System.out.println("You own the following regions:");
+          printOwnedRegions(p);
+          
           boolean flag = true;
           int startRegions = countRegions(p);
           while(flag){
@@ -66,19 +75,43 @@ public class Game {
           if(startRegions < endRegions){
             drawCard(p);
           }
-          troopTransfer(p);
         }
+        troopTransfer(p);
       }
       reinforce();
     }
     
+    private void printOwnedRegions(Player p){
+      for(int i = 0; i < 41; ++i){
+        if(map[i].owner == p){
+          System.out.println(i + map[i].name);
+        }
+      }
+    }
     private void setupTroops(Player p){
       int numTroops = 50 - (5 * numPlayers);
       while(numTroops > 0){
-        numTroops -= distributeTroops(enterInt(0,41), enterInt(0,numTroops));
+        System.out.println("Enter a region to drop troops into\n"
+                + "you have " + numTroops + "troops remaining");
+        numTroops -= dropTroops(numTroops, p);
       }
     }
-    
+    private int dropTroops(int maxTroops, Player p){
+      System.out.println("Enter a number of troops to be moved");
+      int amount = enterInt(1,maxTroops);
+      System.out.println("Enter a target Region");
+      int target;
+      while(true){
+        target = enterInt(0,41);
+        if(map[target].owner == p){
+          break;
+        }else{
+          System.out.println("You don't own that region");
+        }
+      }
+      distributeTroops(target, amount);
+      return amount;
+    }
     private void drawCard(Player p){
       p.addCard(pickUpCard());
     }
@@ -95,20 +128,26 @@ public class Game {
       return numRegions;
     }
     private void troopTransfer(Player p){
-      System.out.println("You may now transfer troops between regions.\n"
-              + "select a region to move from, move to, "
-              + "and the amount of troops,\n"
-              + "or enter 0 for the amount to skip");
       int fromRegion;
       int toRegion;
       int amount;
       while(true){
+        System.out.println("You may now transfer troops between regions.\n"
+              + "select a region to move from, move to, "
+              + "and the amount of troops,\n"
+              + "or enter 0 for the amount to skip");
         fromRegion = enterInt(0,41);
         toRegion = enterInt(0, 41);
         amount = enterInt(0, map[fromRegion].garrison);
-      
+      System.out.println("before");
+      System.out.println(map[fromRegion].owner == p);
+      System.out.println(map[toRegion].owner == p);
+      System.out.println(hasPath(fromRegion, toRegion, p));
         if(map[fromRegion].owner == p && map[toRegion].owner == p && hasPath(fromRegion, toRegion, p)){
+          System.out.println("Path found");
           break;
+        }else{
+          System.out.println("What have you done?");
         }
       }
       map[fromRegion].garrison -= amount;
@@ -117,18 +156,23 @@ public class Game {
     private boolean hasPath(int from, int to, Player p){//breadth first path search
       ArrayList<Integer> ownedTerritories = new ArrayList();
       ownedTerritories.add(from);
-      for(Integer i: ownedTerritories){//for each owned territory in the list
-        if(i == to){//if it is the desired territory
+      System.out.println("Finding path");
+      while(true){//for each owned territory in the list
+        if(ownedTerritories.get(0) == to){//if it is the desired territory
           return true;//there is a path
         }
-        for(Integer k: map[i].borders){//if not, take the bordering territories
+        for(int k = 0; k < map[ownedTerritories.get(0)].borders.length; ++k){//if not, take the bordering territories
+          System.out.println("iterating " + k);
           if(map[k].owner == p){//if you own that territory
-            if(ownedTerritories.contains(k))
+            if(!ownedTerritories.contains(k))
               ownedTerritories.add(k);//add it to the list
           }
         }
-        ownedTerritories.remove(i);
+        ownedTerritories.remove(0);
+        if(ownedTerritories.isEmpty())
+          break;
       }
+      System.out.println("Path not found");
       return false;
     }
     private void attack(Player p){
@@ -313,25 +357,25 @@ public class Game {
     }
     private Player[] makeTable(int n){
         Player[] temp = new Player[n];
-        for(int i = 0; i < n; n++){
+        for(int i = 0; i < n; i++){
             temp[i] = new Player(i);
         }
         return temp;
     }
     private Region[] makeMap(){
         Region[] temp = new Region[42];
+        File in;
+        String fileName = "C:\\Users\\rubbl_000\\Documents\\Risk_0_1\\Risk_0_1\\src\\risk\\Memory";
+        in = new File(fileName);
         Scanner sc;
-        String fileName = "H:\\Senior_Year\\Risk\\Risk\\Run_Memory";
-        try {
-            sc = new Scanner(new File(fileName));
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println();
-            sc = new Scanner(System.in);
-        }
-
-        for(Region r: map){
-            r = new Region(sc.next(), sc.next());
+      try {
+        sc = new Scanner(in);
+      } catch (FileNotFoundException ex) {
+        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        sc = new Scanner(System.in);
+      }
+        for(int i = 0; i < 42; ++i){
+            temp[i] = new Region(sc.next(), sc.next());
         }
         return temp;
     }
@@ -350,7 +394,7 @@ public class Game {
             }else{
                 sc.next();
             }
-            if(temp >= l || temp <= h){
+            if(temp >= l && temp <= h){
                 break;
             }
             System.out.println(wrong);
