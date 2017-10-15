@@ -23,6 +23,20 @@ public class Game {
         this.map = makeMap();
         this.deck = makeDeck();
     }
+    
+    public void setup(){
+      int i = 0;
+      for(Card c: deck){
+        if(c.type != CardType.Wild){
+          map[c.ID].owner = table[i % table.length];
+        }
+        i++;
+      }
+      for(Player p: table){
+        setupTroops(p);
+      }
+    }
+    
     public void play(){
         for(Player p: table){
           boolean flag = true;
@@ -45,10 +59,20 @@ public class Game {
                 flag = false;
               }
               break;
-         }
+          }
+          troopTransfer();
         }
-      }        
+      }
+      reinforce();
     }
+    
+    private void setupTroops(Player p){
+      int numTroops = 50 - (5 * numPlayers);
+      while(numTroops > 0){
+        numTroops -= distributeTroops(enterInt(0,41), enterInt(0,numTroops));
+      }
+    }
+    
     private void attack(Player p){
       System.out.println("You are attacking;\n"
               + "enter 2 numbers, "

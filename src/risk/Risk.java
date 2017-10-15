@@ -6,6 +6,7 @@ package risk;
 public class Risk {
     public static void main(String[] args) {
         Game ludus = new Game();
+        ludus.setup();
         ludus.play();
     }
 }

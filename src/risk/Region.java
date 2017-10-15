@@ -18,7 +18,7 @@ public class Region {
     public Region(String n, String d){
         this.name = n;
         this.borders = mungeData(d);
-        this.garrison = 0;
+        this.garrison = 1;
     }
     private int[] mungeData(String dat){
         int[] temp = new int[dat.length() / 2];
