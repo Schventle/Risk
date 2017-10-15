@@ -139,7 +139,6 @@ public class Game {
         fromRegion = enterInt(0,41);
         toRegion = enterInt(0, 41);
         amount = enterInt(0, map[fromRegion].garrison);
-      System.out.println("before");
       System.out.println(map[fromRegion].owner == p);
       System.out.println(map[toRegion].owner == p);
       System.out.println(hasPath(fromRegion, toRegion, p));
@@ -154,22 +153,26 @@ public class Game {
       map[toRegion].garrison += amount;
     }
     private boolean hasPath(int from, int to, Player p){//breadth first path search
-      ArrayList<Integer> ownedTerritories = new ArrayList();
-      ownedTerritories.add(from);
+      ArrayList<Integer> a = new ArrayList();
+      a.add(from);
       System.out.println("Finding path");
       while(true){//for each owned territory in the list
-        if(ownedTerritories.get(0) == to){//if it is the desired territory
+        if(a.get(0) == to){//if it is the desired territory
           return true;//there is a path
         }
-        for(int k = 0; k < map[ownedTerritories.get(0)].borders.length; ++k){//if not, take the bordering territories
+       System.out.println("Length " + map[a.get(0)].borders.length);
+        for(int k = 0; k < map[a.get(0)].borders.length; ++k){//if not, take the bordering territories
           System.out.println("iterating " + k);
-          if(map[k].owner == p){//if you own that territory
-            if(!ownedTerritories.contains(k))
-              ownedTerritories.add(k);//add it to the list
+          if(map[map[0].borders[k]].owner == p){//if you own that territory
+            if(!a.contains(map[0].borders[k])){
+              System.out.println("Adding " + map[map[0].borders[k]].name + " " + map[0].borders[k]);
+              a.add(k);//add it to the end of the queue
+            }
           }
         }
-        ownedTerritories.remove(0);
-        if(ownedTerritories.isEmpty())
+        System.out.println("Removing " + map[a.get(0)].name);
+        a.remove(0);
+        if(a.isEmpty())
           break;
       }
       System.out.println("Path not found");
