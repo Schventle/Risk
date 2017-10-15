@@ -16,6 +16,7 @@ public class Game {
     private Region[] map;
     private int numPlayers;
     private ArrayList<Card> deck;
+    int numCardTroops = 6;
 
     public Game(){
         this.numPlayers = getNumPlayers();
@@ -40,6 +41,7 @@ public class Game {
     public void play(){
         for(Player p: table){
           boolean flag = true;
+          int startRegions = countRegions(p);
           while(flag){
           int action;
           System.out.println("Enter your action:" + "\n"
@@ -60,6 +62,10 @@ public class Game {
               }
               break;
           }
+          int endRegions = countRegions(p);
+          if(startRegions < endRegions){
+            drawCard(p);
+          }
           troopTransfer(p);
         }
       }
@@ -73,6 +79,21 @@ public class Game {
       }
     }
     
+    private void drawCard(Player p){
+      p.addCard(pickUpCard());
+    }
+    private Card pickUpCard(){
+      return deck.remove(0);
+    }
+    private int countRegions(Player p){
+      int numRegions = 0;
+      for(Region r: map){
+        if(r.owner == p){
+          ++numRegions;
+        }
+      }
+      return numRegions;
+    }
     private void troopTransfer(Player p){
       System.out.println("You may now transfer troops between regions.\n"
               + "select a region to move from, move to, "
@@ -353,6 +374,12 @@ public class Game {
                 temp++;
             }
         }
+        
+        if(p.hasCardSet()){//hasCardSet moves a set of cards to the end of the hand
+          p.discardSet();
+          reinforcements += this.numCardTroops;
+          iterateCardTroops();
+        }
 
         reinforcements += (temp / 3);
 
@@ -364,5 +391,12 @@ public class Game {
     }
     public Region getRegion(int regionID){
       return map[regionID];
+    }
+    private void iterateCardTroops(){
+      if(this.numCardTroops < 15){
+        this.numCardTroops += 3;
+      }else{
+        this.numCardTroops += 5;
+      }
     }
 }
