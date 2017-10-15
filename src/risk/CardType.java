@@ -10,5 +10,8 @@ package risk;
  * @author rubbl_000
  */
 public enum CardType {
-  Artillery, Cavalry, Infantry, Wild
+  Artillery, 
+  Cavalry, 
+  Infantry, 
+  Wild
 }

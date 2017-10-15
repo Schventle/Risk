@@ -8,9 +8,13 @@ import java.util.ArrayList;
  */
 public class Player {
     ArrayList<Card> hand;
+    int ID;
+    boolean lost;
     
-    public Player(){
-        
+    public Player(int i){
+        this.ID = i;
+        this.hand = new ArrayList();
+        this.lost = false;
     }
     
     public void addCard(Card c){
@@ -19,5 +23,9 @@ public class Player {
     public void removeCard(Card c){
         hand.remove(c);
     }
-    
+    @Override
+    public String toString(){
+      String temp = "Player " + this.ID;
+      return temp;
+    }
 }

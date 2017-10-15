@@ -13,10 +13,12 @@ public class Region {
     int[] borders;
     String name;
     Player owner;
+    int garrison;
     
     public Region(String n, String d){
         this.name = n;
         this.borders = mungeData(d);
+        this.garrison = 0;
     }
     private int[] mungeData(String dat){
         int[] temp = new int[dat.length() / 2];
@@ -27,5 +29,14 @@ public class Region {
         
         return temp;
     }
-    
+    public void setOwner(Player p){
+      this.owner = p;
+    }
+    @Override
+    public String toString(){
+      String temp = this.name + ":\n"
+              + "Owner: " + this.owner +"\n"
+              + "Garrison: " + this.garrison;
+      return temp;
+    }
 }
