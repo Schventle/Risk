@@ -63,7 +63,7 @@ public class Player {
         }
       }
       for(int i = 3; i > 0; --i){
-        hand.add(hand.remove(temp[i]));//move the marked cards to the end, end to front
+        hand.add(hand.remove(temp[0]));//move the marked cards to the end, end to front
       }
     }
     public void discardSet(){
