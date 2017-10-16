@@ -39,6 +39,7 @@ public class Game {
       }
       for(Player p: table){
         System.out.println(p);
+        printOwnedRegions(p);
         setupTroops(p);
       }
     }
@@ -84,7 +85,7 @@ public class Game {
     private void printOwnedRegions(Player p){
       for(int i = 0; i < 41; ++i){
         if(map[i].owner == p){
-          System.out.println(i + map[i].name);
+          System.out.println(i +  " " + map[i].name);
         }
       }
     }
@@ -152,30 +153,27 @@ public class Game {
       map[fromRegion].garrison -= amount;
       map[toRegion].garrison += amount;
     }
-    private boolean hasPath(int from, int to, Player p){//breadth first path search
+    private boolean hasPath(int f, int t, Player p){//breadth first path search
       ArrayList<Integer> a = new ArrayList();
-      a.add(from);
-      System.out.println("Finding path");
-      while(true){//for each owned territory in the list
-        if(a.get(0) == to){//if it is the desired territory
-          return true;//there is a path
+      a.add(f);
+      Region from = map[f];
+      Region to =   map[t];
+      for(int i = 0; i < a.size(); ++i){
+        Region temp = map[i];
+        if(temp.owner == p){
+          return true;
         }
-       System.out.println("Length " + map[a.get(0)].borders.length);
-        for(int k = 0; k < map[a.get(0)].borders.length; ++k){//if not, take the bordering territories
-          System.out.println("iterating " + k);
-          if(map[map[0].borders[k]].owner == p){//if you own that territory
-            if(!a.contains(map[0].borders[k])){
-              System.out.println("Adding " + map[map[0].borders[k]].name + " " + map[0].borders[k]);
-              a.add(k);//add it to the end of the queue
+        
+        for(int k = 0; k < temp.borders.length; ++k){
+          if(map[temp.borders[k]].owner == p){
+            if(!a.contains(k)){
+              a.add(k);
+              System.out.println("Added " + map[k].name);
             }
           }
         }
-        System.out.println("Removing " + map[a.get(0)].name);
-        a.remove(0);
-        if(a.isEmpty())
-          break;
       }
-      System.out.println("Path not found");
+      
       return false;
     }
     private void attack(Player p){
@@ -368,7 +366,7 @@ public class Game {
     private Region[] makeMap(){
         Region[] temp = new Region[42];
         File in;
-        String fileName = "C:\\Users\\rubbl_000\\Documents\\Risk_0_1\\Risk_0_1\\src\\risk\\Memory";
+        String fileName = "Memory";
         in = new File(fileName);
         Scanner sc;
       try {
